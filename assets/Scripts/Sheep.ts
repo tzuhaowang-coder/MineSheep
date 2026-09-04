@@ -1,4 +1,5 @@
 import {_decorator, Animation, AnimationClip, Component, NodeEventType} from 'cc';
+import {ViewManager} from "db://assets/Scripts/ViewManager";
 
 const {ccclass, property} = _decorator;
 
@@ -6,7 +7,7 @@ const {ccclass, property} = _decorator;
 export class Sheep extends Component {
     anim: Animation = null;
     private clips: AnimationClip[] = [];    //down jump run
-
+    sheepValue: string = ``;
     isClicked: boolean = false;
 
     onLoad() {
@@ -40,12 +41,23 @@ export class Sheep extends Component {
         });
     };
 
-    private sheepOnClick = async () => {
+    private sheepOnClick = async (view: ViewManager) => {
+        if (this.isClicked) return;
+        if (view.isAnySheepMoving()) return;    // 其他羊開講時不能生效
+
+        this.playAnimation(this.anim, this.clips[2]).then(() => {
+                console.log(`this.sheepValue: ${this.sheepValue}`);
+                // todo: 傳回view 做計算
+            }
+        );
+
 
     }
 
-    InitButton() {
-        this.node.on(NodeEventType.MOUSE_DOWN, this.sheepOnClick);
+    InitButton(view: ViewManager, index: number) {
+        this.sheepValue = view.shuffledBonus[index];
+
+        this.node.on(NodeEventType.MOUSE_DOWN, () => this.sheepOnClick(view));
 
     }
 }
