@@ -45,7 +45,7 @@ export class Sheep extends Component {
         if (this.isClicked) return;
         if (view.isAnySheepMoving()) return;    // 其他羊開講時不能生效
 
-        this.playAnimation(this.anim, this.clips[2]).then(() => {
+        this.playAnimation(this.anim, this.clips[1]).then(() => {
                 console.log(`this.sheepValue: ${this.sheepValue}`);
                 // todo: 傳回view 做計算
             }
