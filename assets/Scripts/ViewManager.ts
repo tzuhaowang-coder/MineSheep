@@ -6,7 +6,7 @@ const {ccclass, property} = _decorator;
 
 @ccclass('ViewManager')
 export class ViewManager extends Component {
-    @property({type: Prefab, displayName: `綿羊按鈕prefab`}) sheepBtnPrefab: Node = null;
+    @property({type: Prefab, displayName: `綿羊按鈕prefab`}) sheepBtnPrefab: Prefab = null;
     @property({type: Node}) sheepParentNode: Node = null;
 
     sheepButtons: Sheep[] = [];
@@ -69,7 +69,6 @@ export class ViewManager extends Component {
 
         sheep.getComponent(Button).clickEvents.push(handler);
     }
-
     private setDictionary() {
         this.dic.set(`+2`, EGetReward.plus2);
         this.dic.set(`+1`, EGetReward.plus1);

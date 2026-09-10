@@ -1,5 +1,5 @@
 import {_decorator, Button, Component, EventHandler, Label, Node, tween, Vec3} from 'cc';
-import {ViewManager} from "db://assets/Scripts/ViewManager";
+import {SheepManager} from "db://assets/Scripts/SheepManager";
 
 const {ccclass, property} = _decorator;
 
@@ -15,7 +15,7 @@ export class GameManager extends Component {
         this.roundCountLabel.string = `Round: ${this._round}`;
     }
 
-    @property(ViewManager) viewManager: ViewManager;
+    @property({type: SheepManager}) sheepManager: SheepManager;
     @property(Label) multiplyLabel: Label;
     @property(Label) roundCountLabel: Label;
     @property(Button) resetGameButton: Button;
@@ -36,17 +36,17 @@ export class GameManager extends Component {
     }
 
     start() {
-        this.viewManager.shuffledBonus = this.shuffledBonusList;
-        this.viewManager.calculateReward = (type) => {
+        this.sheepManager.shuffledBonus = this.shuffledBonusList;
+        this.sheepManager.calculateReward = (type) => {
             this.calculateMultiply(type);
         }
 
-        this.viewManager.installAllSheepBtns();
+        this.sheepManager.installAllSheepBtns();
     }
 
     nextRound() {
         this.round = this._round + 1;
-        this.viewManager.isAnySheepMoving = false;
+        this.sheepManager.isAnySheepMoving = false;
     }
 
     getShuffledBonusList() {
@@ -96,17 +96,16 @@ export class GameManager extends Component {
         }
     }
 
-
     newRound() {
         // new Round
         this.getShuffledBonusList();
-        this.viewManager.resetGame();
+        this.sheepManager.resetGame();
         this.multiply = 1;
         this.round = 1;
     }
 
     private EndGame() {
-        this.viewManager.onEndGame();
+        this.sheepManager.onEndGame();
     }
 
     private initResetBtn() {
