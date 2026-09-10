@@ -1,4 +1,5 @@
-import {_decorator, Animation, AnimationClip, Component, Label, Node, tween, Vec3, Sprite, Color} from 'cc';
+import {_decorator, Animation, AnimationClip, Component, Label, Node, tween, Vec3, Sprite, Color, Button, EventHandler} from 'cc';
+import {SheepManager} from "db://assets/Scripts/SheepManager";
 
 const {ccclass, property} = _decorator;
 
@@ -9,34 +10,31 @@ export class Sheep extends Component {
         this.sheepValueLabel.string = value;
     }
 
-    anim: Animation = null;
+    private anim: Animation = null;
     private clips: AnimationClip[] = [];    //down jump run
     private _sheepValue: string = ``;
-
-    // 拿去給外部注入用
-    public onSheepFinishMove: (index: number) => void = null;
-    calculateReward: (multiply: string) => void = null;
 
     isClicked: boolean = false;
 
     private starNode: Node = null;
     private sheepValueLabel: Label;
     private sheepSprite: Sprite;
+    sheepButton: Button = null;
 
     onLoad() {
-        this.anim = this.getComponent(Animation);
-        this.sheepSprite = this.getComponent(Sprite);
-        this.clips = this.anim.clips;
-        this.starNode = this.node.parent.children[1];
+        let buttonNode = this.node.children[0];
 
-        let valueLabelNode = this.node.children[0];
+        this.sheepButton = buttonNode.getComponent(Button);
+        this.anim = buttonNode.getComponent(Animation);
+        this.clips = this.anim.clips;
+        this.sheepSprite = buttonNode.getComponent(Sprite);
+        this.starNode = this.node.children[1];
+
+        let valueLabelNode = buttonNode.children[0];
         valueLabelNode.scale = Vec3.ZERO;
         this.sheepValueLabel = valueLabelNode.getComponent(Label);
     }
-
-    start() {
-    }
-
+    
     async playAnimation(anim: Animation, clip: AnimationClip, loop = false, forever = false, timer: number = 5): Promise<void> {
         return new Promise((resolve) => {
             console.log(clip.name);
@@ -62,7 +60,7 @@ export class Sheep extends Component {
         });
     };
 
-    async sheepOnClick() {
+    async sheepOnClick(manager: SheepManager) {
         if (this.isClicked) {
             return;
         }
@@ -71,7 +69,7 @@ export class Sheep extends Component {
         this.playAnimation(this.anim, this.clips[1]).then(() => {
                 console.log(`this.sheepValue: ${this._sheepValue}`);
                 if (this._sheepValue == `END`) {
-                    this.sheepGoDie();
+                    this.sheepGoDie(false, manager);
                 } else {
                     this.starNode.active = true;
                     this.sheepValueLabel.node.scale = Vec3.ONE;
@@ -85,16 +83,18 @@ export class Sheep extends Component {
                         }
                     }).start();
 
-                    this.calculateReward(this._sheepValue);
+                    let eGetReward = manager.dic.get(this._sheepValue);
+                    manager.calculateReward(eGetReward);
                 }
             }
         );
     }
 
-    sheepGoDie(gameEnd: boolean = false) {
+    sheepGoDie(gameEnd: boolean = false, manager: SheepManager) {
         this.playAnimation(this.anim, this.clips[0]).then(() => {
             if (!gameEnd) {
-                this.calculateReward(this._sheepValue);
+                let eGetReward = manager.dic.get(this._sheepValue);
+                manager.calculateReward(eGetReward);
             }
             this.sheepSprite.color = Color.GRAY;
             this.sheepValueLabel.node.scale = Vec3.ONE;

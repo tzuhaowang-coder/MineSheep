@@ -7,7 +7,7 @@ const {ccclass, property} = _decorator;
 export class GameManager extends Component {
     set multiply(value: number) {
         this._multiply = value;
-        this.multiplyLabel.string = `Multiply: ${this._multiply}`;
+        this.multiplyLabel.string = `Multiple: ${this._multiply}`;
     }
 
     set round(value: number) {
@@ -27,25 +27,22 @@ export class GameManager extends Component {
     private _round: number = 1;
 
     private starNode: Node = null;
+    private starNode2: Node = null;
 
-    onLoad() {
+
+    start() {
         this.initResetBtn();
         this.shuffledBonusList = [...this.bonusList];
         this.getShuffledBonusList();
         this.starNode = this.multiplyLabel.node.children[0];
-    }
-
-    start() {
+        this.starNode2 = this.roundCountLabel.node.children[0];
         this.sheepManager.shuffledBonus = this.shuffledBonusList;
-        this.sheepManager.calculateReward = (type) => {
-            this.calculateMultiply(type);
-        }
-
+        this.sheepManager.getGameManager(this);
         this.sheepManager.installAllSheepBtns();
     }
 
     nextRound() {
-        this.round = this._round + 1;
+        // this.round = this._round + 1;
         this.sheepManager.isAnySheepMoving = false;
     }
 
@@ -64,25 +61,31 @@ export class GameManager extends Component {
     };
 
     calculateMultiply(type: EGetReward) {
-        const showStar = () => {
-            tween(this.starNode).to(0.5, {
+        const showStar = (star: boolean = false) => {
+            let target = star ? this.starNode : this.starNode2;
+
+            tween(target).to(0.5, {
                 scale: Vec3.ONE,
             }, {
                 onComplete: () => {
-                    this.starNode.setScale(Vec3.ZERO);
+                    target.setScale(Vec3.ZERO);
                 }
             }).start();
         }
         const calculate = (eGetReward: EGetReward) => {
             switch (eGetReward) {
 
-                case EGetReward.plus1:
-                    this.multiply = this._multiply + 1;
+                case EGetReward.round1:
+                    this.round = this._round + 1;
                     showStar();
                     break;
-                case EGetReward.plus2:
-                    this.multiply = this._multiply + 2;
+                case EGetReward.round2:
+                    this.round = this._round + 2;
                     showStar();
+                    break;
+                case EGetReward.multiple1:
+                    this.multiply = this._multiply + 1;
+                    showStar(true);
                     break;
             }
         }
@@ -120,8 +123,8 @@ export class GameManager extends Component {
 }
 
 export enum EGetReward {
-    plus2,
-    plus1,
-    nothing,
+    round2,
+    round1,
+    multiple1,
     End
 }
